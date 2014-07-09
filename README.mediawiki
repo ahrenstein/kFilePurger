@@ -1,0 +1,21 @@
+=== What does this do? ===
+Kaltura File Purger will physically delete the media files related to entries that a specified partner deleted from a Kaltura installation.
+=== Why do I need this? ===
+By default a Kaltura installation does not delete the files related to an entry when the entry is deleted. This is done intentionally because some people may want to recover files from deleted entries at a later date.
+This can be costly to systems with limited storage, so this script was written to be placed in a cron, or run manually to delete the files once they are no longer needed.
+=== Why not just delete the entries manually? ===
+This script also updates the Kaltura file_sync database to mark the entries as purged (status 4). This is very important, because if Kaltura looks for the physical files of an entry that isn't marked as purged, and it can't find it, you could
+have API errors occur.
+=== Script workflow ===
+*1) The script makes an API call to the Kaltura API and gets a list of entries marked as deleted for the specified partner
+*2) Then it searches the local path /opt/kaltura/web/content/entry/data recursively for files matching that entry ID and adds them to an array
+*3) The script then goes through the array and deletes the file and marks it as purged in the DB
+=== Limitations ===
+*1) The script assumes that Kaltura is installed in the default /opt/kaltura path
+*2) Since the script relies on files not being deleted by anything other than itself, it will not mark a file as purged if it doesn't find the file on the system
+*3) The script has to be run on a server that has access to the /opt/kaltura/web directory (local all-in-one or NFS mount for a cluster)
+*4) The script needs access to the database server directly as the Kaltura API doesn't have a way to interact with the file_sync table
+*5) This script was tested on the On-Prem edition of Kaltura under the Hercules+ version. It SHOULD work on Kaltura CE and later versions
+=== What is Kaltura? ===
+Kaltura is an open source video platform with a community edition hosted here on GitHub at https://github.com/kaltura/server
+<br>There are also professional "On-Prem" and SaaS hosted versions available at http://corp.kaltura.com/
